@@ -6,11 +6,13 @@ import {
   Form,
   FormControl,
   Modal,
-  Pagination,
   Row,
   Table,
+  Pagination,
 } from "react-bootstrap";
 import ProductForm from "./ProductForm";
+
+
 function MyVerticallyCenteredModal(props) {
   return (
     <Modal
@@ -36,13 +38,16 @@ function Products() {
   const [modalShow, setModalShow] = React.useState(false); // state use for Modal show or Hide
   const [reference, setReference] = React.useState(false); // reference id for the Modal wich to EDIT; EDIT MODAL prop
   const [inputpage, setInputpage] = useState(""); // state set for Data for search
+
+  const [currentPage, setCurrentPage] = useState(1);// cuuretn page paginate
+  const [searchMode,setSearchMode]= useState(false)
+
   const setLocalStorageToState = () => {
     // Sets the Data from Local Storage to a State that is used for table
     var dataStorage = [];
     dataStorage = JSON.parse(localStorage.getItem("products")) || [];
     setContacts(dataStorage);
   };
-
   const deleteContact = (e) => {
     //This fucntion deletes a object from Local Storage by the id
     var dataStorage = [];
@@ -66,6 +71,7 @@ function Products() {
     // SEARCH METHOD
     if (inputpage === "") {
       // if nothing is search will search All DATA
+      setSearchMode(false)
       setLocalStorageToState();
     } else {
       const keyword = inputpage;
@@ -75,7 +81,8 @@ function Products() {
           (val) => typeof val === "string" && val.includes(keyword)
         )
       );
-      setContacts(filtered); // will set the data filter to the TABLE
+      setSearchMode(true)
+      setContacts(filtered);
       setInputpage(""); // reset the input
     }
   };
@@ -83,11 +90,35 @@ function Products() {
     const value = evt.target.value;
     setInputpage(value);
   }
+
   useEffect(() => {
     setLocalStorageToState();
   }, [setContacts]);
 
-  
+  const changePage = (e) => {
+
+    setCurrentPage(e.target.id);
+  };
+
+  let items = [];
+  let numberMax = Math.round(contacts.length / 2);
+  for (let number = 1; number <= numberMax; number++) {
+    items.push(
+      <Pagination.Item
+        id={number}
+        key={number}
+        active={number == currentPage}
+        onClick={changePage}
+      >
+        {number}
+      </Pagination.Item>
+    );
+  }
+  function paginate(array, page_size, page_number) {
+    // human-readable page numbers usually start with 1, so we reduce 1 in the first argument
+    return array.slice((page_number - 1) * page_size, page_number * page_size);
+  }
+
   return (
     <Container>
       <Row>
@@ -114,17 +145,19 @@ function Products() {
           <Table striped bordered responsive>
             <thead>
               <tr>
-                <th>Last Name</th>
-                <th>Username</th>
+                <th>Name</th>
+                <th>Brand</th>
+                <th>Age</th>
               </tr>
             </thead>
             <tbody>
-              {contacts
-                ? contacts.map((val) => {
+              {contacts && searchMode === false
+                ? paginate(contacts, 2, currentPage).sort().map((val) => {
                     return (
                       <tr key={val.id}>
                         <td>{val.name}</td>
-                        <td>{val.email}</td>
+                        <td>{val.brand}</td>
+                        <td>{val.age}</td>
                         <td>
                           <Button value={val.id} onClick={deleteContact}>
                             Delete
@@ -138,10 +171,30 @@ function Products() {
                       </tr>
                     );
                   })
-                : ""}
+                : contacts.sort().map((val) => {
+                  return (
+                    <tr key={val.id}>
+                      <td>{val.name}</td>
+                      <td>{val.brand}</td>
+                      <td>{val.age}</td>
+                      <td>
+                        <Button value={val.id} onClick={deleteContact}>
+                          Delete
+                        </Button>
+                      </td>
+                      <td>
+                        <Button value={val.id} onClick={editContact}>
+                          Edit
+                        </Button>
+                      </td>
+                    </tr>
+                  );
+                })}
             </tbody>
           </Table>
-
+          <Pagination>{items}</Pagination>
+          
+         
         </Col>
       </Row>
       <MyVerticallyCenteredModal
