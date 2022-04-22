@@ -12,7 +12,6 @@ import {
 } from "react-bootstrap";
 import ProductForm from "./ProductForm";
 
-
 function MyVerticallyCenteredModal(props) {
   return (
     <Modal
@@ -35,13 +34,13 @@ function MyVerticallyCenteredModal(props) {
 }
 function Products() {
   const [contacts, setContacts] = useState([]); // State use to fill the table
-  const [modalShow, setModalShow] = React.useState(false); // state use for Modal show or Hide
-  const [reference, setReference] = React.useState(false); // reference id for the Modal wich to EDIT; EDIT MODAL prop
+  const [modalShow, setModalShow] = useState(false); // state use for Modal show or Hide
+  const [reference, setReference] = useState(false); // reference id for the Modal wich to EDIT; EDIT MODAL prop
   const [inputpage, setInputpage] = useState(""); // state set for Data for search
 
   const [currentPage, setCurrentPage] = useState(1);// cuuretn page paginate
   const [searchMode,setSearchMode]= useState(false)
-
+  
   const setLocalStorageToState = () => {
     // Sets the Data from Local Storage to a State that is used for table
     var dataStorage = [];

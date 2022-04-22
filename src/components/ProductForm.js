@@ -1,10 +1,12 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { Button, Form } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 import uuid from "react-uuid";
 
 function ProductForm(props) {
   const navigate = useNavigate();
+  const ref = useRef();
+
   const [product, setProduct] = useState({
     name: "",
     brand: "",
@@ -15,38 +17,43 @@ function ProductForm(props) {
   const saveProductSubmit = (event) => {
     // Submit new product to Local Storage
     event.preventDefault();
-
+    if (product.brand === "Dior" && product.file.length < 2) {
+      return alert("Please add at least 2 Image");
+    }
     if (
       product.name !== "" &&
       product.brand !== "" &&
       product.description !== "" &&
-      product.age !== ""&&
-      !!product.file.length
+      product.age !== "" &&
+      product.file.length
     ) {
       var dataStorage = [];
 
       dataStorage = JSON.parse(localStorage.getItem("products")) || []; // Data current from storage
       const productWithId = { ...product, id: uuid() }; // product info
-      
+
       dataStorage.push(productWithId);
 
       dataStorage = JSON.stringify(dataStorage);
       localStorage.setItem("products", dataStorage); // set new DATA to Local Storage
       setProduct({ brand: "", name: "", description: "", age: "", file: [] });
       navigate("/products");
+    } else {
+      alert("Error! All inputs must be fill!");
     }
-    
   };
   const editProducSubmit = (event) => {
     // Submit edit product to Local Storage
     event.preventDefault();
-    
+    if (product.brand === "Dior" && product.file.length < 2) {
+      return alert("Please add at least 2 Image");
+    }
     if (
       product.name !== "" &&
       product.brand !== "" &&
       product.description !== "" &&
       product.age !== "" &&
-      !!product.file.length
+      product.file.length
     ) {
       var dataStorage = [];
 
@@ -65,6 +72,8 @@ function ProductForm(props) {
       setProduct({ brand: "", name: "", description: "", age: "" });
 
       props.hide(); // close the Modal
+    } else {
+      alert("Error! All inputs must be fill!");
     }
   };
   const handleChange = (event) => {
@@ -99,14 +108,16 @@ function ProductForm(props) {
   };
   const deleteImage = (e) => {
     //delete image from edit form
-    const file = e.target.id; 
-    const newproductState = product.file.filter( el => el !== file) //delete from state 
-    //if returns [] there are no images 
-    if(newproductState === []){
-      return setProduct({ ...product,file: [] })
+    const file = e.target.id;
+    const newproductState = product.file.filter((el) => el !== file); //delete from state
+    //if returns [] there are no images
+    if (newproductState === []) {
+      return setProduct({ ...product, file: [] });
     }
-    setProduct({ ...product,file: newproductState })
-    
+    setProduct({ ...product, file: newproductState });
+    // document.getElementByid(`${file}`).value = '';
+    ref.current.value = "";
+    // ref2.current.value = "";
   };
   return (
     <>
@@ -173,30 +184,17 @@ function ProductForm(props) {
                 );
               })}
             </>
-          ) : ''} 
-          {product.brand === "Dior" ? (
-            <>
-              <Form.Control
-                name="file"
-                type="file"
-                placeholder="Images"
-                onChange={imageUpload}
-              />
-              <Form.Control
-                name="file"
-                type="file"
-                placeholder="Images"
-                onChange={imageUpload}
-              />
-            </>
           ) : (
-            <Form.Control
-              name="file"
-              type="file"
-              placeholder="Images"
-              onChange={imageUpload}
-            />
+            ""
           )}
+
+          <Form.Control
+            name="file"
+            type="file"
+            ref={ref}
+            placeholder="Images"
+            onChange={imageUpload}
+          />
         </Form.Group>
 
         <Button variant="primary" type="submit">
